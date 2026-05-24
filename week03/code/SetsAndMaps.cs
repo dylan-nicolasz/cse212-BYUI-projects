@@ -1,4 +1,6 @@
+using System.Dynamic;
 using System.Text.Json;
+using System.Globalization;
 
 public static class SetsAndMaps
 {
@@ -22,7 +24,26 @@ public static class SetsAndMaps
     public static string[] FindPairs(string[] words)
     {
         // TODO Problem 1 - ADD YOUR CODE HERE
-        return [];
+        HashSet<string> wordList = new HashSet<string>(words);
+
+        HashSet<string> resultList = new HashSet<string>();
+
+        foreach (string word in words)
+        {
+            if (word[0] == word[1])
+                continue;
+
+            string reversedWord = $"{word[1]}{word[0]}";
+
+            if (wordList.Contains(reversedWord))
+            {
+                if (string.Compare(word, reversedWord) < 0)
+                {
+                    resultList.Add($"{word} & {reversedWord}");
+                }
+            }
+        }
+        return resultList.ToArray();
     }
 
     /// <summary>
@@ -43,6 +64,16 @@ public static class SetsAndMaps
         {
             var fields = line.Split(",");
             // TODO Problem 2 - ADD YOUR CODE HERE
+            string degreeKey = fields[3];
+            if (degrees.ContainsKey(degreeKey))
+            {
+                degrees[degreeKey] += 1;
+            }
+            else
+            {
+                degrees.Add(degreeKey, 1);
+            }
+
         }
 
         return degrees;
@@ -66,10 +97,62 @@ public static class SetsAndMaps
     /// </summary>
     public static bool IsAnagram(string word1, string word2)
     {
-        // TODO Problem 3 - ADD YOUR CODE HERE
-        return false;
-    }
+        word1 = word1.ToLower();
+        word2 = word2.ToLower();
 
+        var letterCounts = new Dictionary<char, int>();
+
+        int word1Length = 0;
+        foreach (char letter in word1)
+        {
+            if (char.IsWhiteSpace(letter))
+            {
+                continue;
+            }
+
+            word1Length++;
+            if (letterCounts.ContainsKey(letter))
+            {
+                letterCounts[letter]++;
+            }
+            else
+            {
+                letterCounts[letter] = 1;
+            }
+        }
+
+        int word2Length = 0;
+        foreach (char letter in word2)
+        {
+            if (char.IsWhiteSpace(letter))
+            {
+                continue;
+            }
+
+            word2Length++;
+            if (!letterCounts.ContainsKey(letter))
+            {
+                return false;
+            }
+
+            letterCounts[letter]--;
+        }
+
+        if (word1Length != word2Length)
+        {
+            return false;
+        }
+
+        foreach (var pair in letterCounts)
+        {
+            if (pair.Value != 0)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
     /// <summary>
     /// This function will read JSON (Javascript Object Notation) data from the 
     /// United States Geological Service (USGS) consisting of earthquake data.
@@ -101,6 +184,16 @@ public static class SetsAndMaps
         // on those classes so that the call to Deserialize above works properly.
         // 2. Add code below to create a string out each place a earthquake has happened today and its magitude.
         // 3. Return an array of these string descriptions.
-        return [];
+
+        if (featureCollection?.Features == null)
+        {
+            return Array.Empty<string>();
+        }
+
+        string[] summary = featureCollection.Features
+        .Select(f => $"{f.Properties.Place} - Mag {f.Properties.Mag?.ToString(CultureInfo.InvariantCulture)}")
+        .ToArray();
+
+        return summary;
     }
 }

@@ -24,7 +24,17 @@
 
     private static int CountDuplicates(int[] data)
     {
-        // Add code here.
-        return 0;
+        Dictionary<int, int> duplicates = new Dictionary<int, int>();
+
+        foreach (var item in duplicates)
+        {
+            if (item.Value < 1)
+            {
+                Console.WriteLine ($"{item.Key} appears {item.Value} times");
+            }
+        }
+
+        //HashSet <int> set = new HashSet<int> (data);
+        return 0    ;
     }
 }
